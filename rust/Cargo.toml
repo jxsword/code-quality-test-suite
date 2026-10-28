@@ -1,0 +1,20 @@
+# rust/Cargo.toml —— Rust 工具链配置（2026-10-28 调研选型：rustfmt + cargo clippy）
+# 版本锁：Rust 1.99.1（CI，2026-10-16 已查证）；本机实测 1.99.0（仅 patch 差，规则一致）。
+# 命名约束：rustc 内置 lint（[lints.rust] 表，1.74+ 官方推荐写法）；
+# Lint：cargo clippy（[lints.clippy] 表），无需额外工具。
+[package]
+name = "greeter"
+version = "0.1.0"
+edition = "2024"
+description = "code-quality-test-suite 正面用例 crate"
+license = "MIT"
+
+[dependencies]
+
+[lints.rust]
+non_snake_case = "deny"        # 函数/变量/模块必须 snake_case
+non_camel_case_types = "deny" # 类型/枚举必须 CamelCase
+non_upper_case_globals = "deny" # 常量/static 必须 UPPER_SNAKE_CASE
+
+[lints.clippy]
+all = { level = "warn" }      # clippy 默认组（needless_return 等在 style 组内）
