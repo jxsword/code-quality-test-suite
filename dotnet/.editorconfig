@@ -1,0 +1,62 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.cs]
+# ===== 格式规则（dotnet format whitespace 执行）=====
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_indent_block_contents = true
+
+# ===== 命名规则（dotnet_naming_rule，severity=error）=====
+# 规则1：私有实例字段 = _camelCase
+dotnet_naming_rule.private_fields_underscore.severity = error
+dotnet_naming_rule.private_fields_underscore.symbols = private_field_symbols
+dotnet_naming_rule.private_fields_underscore.style = underscore_camel_case
+dotnet_naming_symbols.private_field_symbols.applicable_kinds = field
+dotnet_naming_symbols.private_field_symbols.applicable_accessibilities = private
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+
+# 规则2：接口 = I 前缀 + PascalCase
+dotnet_naming_rule.interfaces_i_prefix.severity = error
+dotnet_naming_rule.interfaces_i_prefix.symbols = interface_symbols
+dotnet_naming_rule.interfaces_i_prefix.style = i_pascal_case
+dotnet_naming_symbols.interface_symbols.applicable_kinds = interface
+dotnet_naming_symbols.interface_symbols.applicable_accessibilities = *
+dotnet_naming_style.i_pascal_case.capitalization = pascal_case
+dotnet_naming_style.i_pascal_case.required_prefix = I
+
+# 规则3：类型（class/struct/interface/enum/delegate/record）= PascalCase
+dotnet_naming_rule.types_pascal.severity = error
+dotnet_naming_rule.types_pascal.symbols = named_type_symbols
+dotnet_naming_rule.types_pascal.style = pascal_case
+dotnet_naming_symbols.named_type_symbols.applicable_kinds = class,struct,interface,enum,delegate,record
+dotnet_naming_symbols.named_type_symbols.applicable_accessibilities = *
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+# 规则4：常量（static，含 const）= UPPER_SNAKE_CASE
+dotnet_naming_rule.constants_upper.severity = error
+dotnet_naming_rule.constants_upper.symbols = constant_symbols
+dotnet_naming_rule.constants_upper.style = all_upper
+dotnet_naming_symbols.constant_symbols.applicable_kinds = field
+dotnet_naming_symbols.constant_symbols.required_modifiers = static
+dotnet_naming_style.all_upper.capitalization = all_upper
+dotnet_naming_style.all_upper.word_separator = _
+
+# ===== StyleCop / 分析器规则开关 =====
+dotnet_diagnostic.SA1101.severity = error   # 实例成员前加 this.
+dotnet_diagnostic.SA1302.severity = error    # 接口名必须 I 前缀（与 dotnet_naming_rule.interfaces_i_prefix 双保险）
+dotnet_diagnostic.SA1309.severity = none    # 关闭"字段不许 _ 开头"（与规则1 _camelCase 冲突）
+dotnet_diagnostic.SA1600.severity = none    # 不强制 public 成员 XML 注释
+dotnet_diagnostic.SA1200.severity = none    # using 放 namespace 内（与 ImplicitUsings 冲突，关闭）
+dotnet_diagnostic.SA1633.severity = none    # 不强制文件头
+dotnet_diagnostic.SA1649.severity = none    # 不强制文件名与首类型同名（反面用例统一叫 Case.cs）
