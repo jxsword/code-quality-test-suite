@@ -1,0 +1,27 @@
+# go/.golangci.yml —— golangci-lint v2 配置（2026-10-28 调研选型：v2.15.0）
+# v2 起强制 version: "2"；命名规则走 revive 的 var-naming / exported，
+# Lint 静态分析走 staticcheck + govet（含 printf 检查）。
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - revive
+
+  settings:
+    revive:
+      rules:
+        - name: var-naming # 标识符命名风格（initialism 如 URL/ID/API 必须全大写）
+        - name: exported # 导出符号必须有 doc 注释
+        - name: package-comments
+
+  exclusions:
+    generated: strict
+    paths:
+      - vendor/
+      - third_party/
