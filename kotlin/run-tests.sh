@@ -58,6 +58,7 @@ fi
 echo "[ok] java -> $(command -v java)（$(java -version 2>&1 | head -1)）"
 
 # 工具缺失时先下载到 $HOME/tools（与原路径一致），下载失败才降级
+mkdir -p "$HOME/tools"
 if [ ! -x "$KTLINT_BIN" ]; then
     echo "[..] 下载 ktlint 1.8.0 ..."
     curl -fsSL 'https://github.com/pinterest/ktlint/releases/download/1.8.0/ktlint' \

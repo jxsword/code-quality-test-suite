@@ -60,6 +60,7 @@ fi
 echo "[ok] java -> $(command -v java)（$(java -version 2>&1 | head -1)）"
 
 # 工具 jar 缺失时先下载到 $HOME/tools（与原路径一致），下载失败才降级
+mkdir -p "$HOME/tools"
 if [ ! -f "$GJF_JAR" ]; then
     echo "[..] 下载 google-java-format 1.37.0 ..."
     curl -fsSL 'https://github.com/google/google-java-format/releases/download/v1.37.0/google-java-format-1.37.0-all-deps.jar' \
