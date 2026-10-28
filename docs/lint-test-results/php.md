@@ -3,7 +3,7 @@
 > 实测环境：本地沙箱（2026-10-28 14:56 +08:00），沙箱具备 sudo，run-tests.sh 自动 `apt-get install php-cli php-mbstring php-xml` + 下载 composer 到 `$HOME/bin` 后实测。
 > 工具链（实测）：**PHP 8.1.2** + Composer 2.10.3 + **php-cs-fixer 3.95.27** + **phpstan 2.3.3** + **php_codesniffer 4.0.4**。
 > 正面用例 3/3 PASS；反面用例 3/3 均按预期 FAIL，修复后全部 PASS。
-> CI 运行后以真实日志回填本文档（CI 用 shivammathur/setup-php 或 apt 装 php+composer，流程与本脚本一致）。
+> **本地与 CI 均已实测**（CI 全量运行 40662260620 全绿：CI 用 apt 装 PHP + Composer 后 composer install 真实运行 php-cs-fixer 3.95.27 / PHPStan 2.3.3 / phpcs 4.0.4）。
 
 ## 正面用例
 

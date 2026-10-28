@@ -2,7 +2,6 @@
 
 > 实测环境：本地沙箱（2026-10-28 14:29 +08:00）　工具链：**sqlfluff 4.4.0**（dialect=postgres）
 > 正面用例 1/1 PASS；反面用例 3/3 均按预期 FAIL，修复后全部 PASS。
-> CI（GitHub Actions）运行后如错误输出有差异，本页将同步回填更新。
 
 ## 正面用例
 
@@ -70,3 +69,5 @@ All Finished!
 | case-bad-1 | 格式 CP01 | results/fail-case-bad-1.log | sqlfluff fix 自动大写关键字 | PASS |
 | case-bad-2 | 命名 CP02 | results/fail-case-bad-2.log | 手工重命名 snake_case | PASS |
 | case-bad-3 | Lint CP03 | results/fail-case-bad-3.log | sqlfluff fix 自动大写函数名 | PASS |
+
+> **CI 实测**：全量运行 40662260620 通过（sqlfluff 4.4.0，版本与本地一致）。

@@ -2,7 +2,6 @@
 
 > 实测环境：本地沙箱（2026-10-28 14:31 +08:00）　工具链：**gofmt（go1.23.0）+ golangci-lint 2.15.0**（go1.26.10 toolchain 编译；CI 锁 Go 1.27，规则一致）
 > 正面用例 2/2 PASS；反面用例 3/3 均按预期 FAIL，修复后全部 PASS。
-> CI（GitHub Actions）运行后如错误输出有差异，本页将同步回填更新。
 
 ## 正面用例
 
@@ -60,3 +59,5 @@ results/.casework/bad-lint-printf.go:8:20: printf: fmt.Printf format %d has arg 
 | case-bad-1 | 格式 | results/fail-case-bad-1.log（gofmt -l 列出文件） | gofmt -w | PASS |
 | case-bad-2 | 命名（revive var-naming） | results/fail-case-bad-2.log | userUrl → userURL | PASS |
 | case-bad-3 | Lint（govet printf） | results/fail-case-bad-3.log | %d → %s | PASS |
+
+> **CI 实测**：全量运行 40662260620 通过（gofmt + golangci-lint 2.15.0，版本与本地一致）。

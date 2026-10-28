@@ -1,9 +1,8 @@
 # Java 实测结果（lint-test-results）
 
-> 本地与 CI 均已实测（CI 运行后如有差异会回填更新）。
+> **本地与 CI 均已实测**（CI 全量运行 40662260620 全绿，JDK25 + gjf 1.37.0 + checkstyle 14.3.0）。
 > 实测环境：本地沙箱（2026-10-28 14:37 +08:00）　工具链：**google-java-format 1.37.0 + checkstyle 14.3.0**（Temurin JDK21，编译 release 17）
 > 正面用例 3/3 PASS（含 `mvn checkstyle:check`）；反面用例 3/3 均按预期 FAIL，修复后全部 PASS。
-> CI（GitHub Actions）运行后如错误输出有差异，本页将同步回填。
 
 ## 正面用例
 
@@ -56,4 +55,4 @@ Checkstyle ends with 2 errors.
 | case-bad-2 | 命名 ConstantName | results/fail-case-bad-2.log | 重命名 MAX_RETRIES | PASS |
 | case-bad-3 | Lint UnusedImports | results/fail-case-bad-3.log | 删除未使用 import | PASS |
 
-> 已知限制（CI 回填）：`mvn spotless:check` 因 Spotless 插件反射 `Style.valueOf(String)` 与 gjf 1.37.0 的 record 化 `Style` 不兼容，本地未跑通；格式化行为已由独立 jar 验证，待 Spotless 适配后在 CI 回填真实日志。
+> 已知限制（CI 实测结论）：CI 上 `mvn checkstyle:check` 通过（case-ok-maven PASS）；`mvn spotless:check` 因 spotless-maven-plugin（含 3.10.4）内部反射调用 `Style.valueOf` 与 gjf 1.37.0 的 record 化 `JavaFormatterOptions.Style` 不兼容而**无法执行**（插件侧缺陷，CI 上同样复现）；CLI 层 google-java-format 行为已等价实测验证（case-ok-1 PASS，本地与 CI 均通过）。

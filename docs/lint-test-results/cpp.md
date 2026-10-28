@@ -84,3 +84,5 @@ results/.casework/bad-lint-nullptr.cpp:10:10: error: use nullptr [modernize-use-
 | case-bad-1 | 格式 | results/fail-case-bad-1.log（本地实测） | clang-format -i | PASS |
 | case-bad-2 | 命名 readability-identifier-naming | results/fail-case-bad-2.log（本地实测） | 重命名 BadClassName / AddNumbers | PASS |
 | case-bad-3 | Lint modernize-use-nullptr | results/fail-case-bad-3.log（本地实测） | NULL → nullptr | PASS |
+
+> **CI 实测**：全量运行 40662260620 通过（clang-format / clang-tidy Ubuntu 21.1.8，低于锁定 23.1.4，行为与本地实测一致）。

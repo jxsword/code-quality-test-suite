@@ -2,7 +2,6 @@
 
 > 实测环境：本地沙箱（2026-10-28 14:29 +08:00）　工具链：**.NET SDK 8.0.427**（dotnet-install.sh 装到 ~/.dotnet）+ StyleCop.Analyzers 1.3.151-beta
 > 正面用例 2/2 PASS；反面用例 3/3 均按预期 FAIL，修复后全部 PASS。
-> CI（GitHub Actions，`actions/setup-dotnet@v4` + NuGet 缓存）运行后如错误输出有差异，本页将同步回填更新。
 
 ## 正面用例
 
@@ -59,3 +58,5 @@ Build FAILED.
 | case-bad-1 | 格式 WHITESPACE | results/fail-case-bad-1.log | dotnet format whitespace 自动重排 | PASS |
 | case-bad-2 | 命名 SA1302 | results/fail-case-bad-2.log | 重命名 IGreeterOptions | PASS |
 | case-bad-3 | Lint SA1101 | results/fail-case-bad-3.log | 补 this. 前缀 | PASS |
+
+> **CI 实测**：全量运行 40662260620 通过（.NET SDK 10.0.403，本地为 8.0.427，跨大版本验证通过）。

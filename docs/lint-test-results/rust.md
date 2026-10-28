@@ -2,7 +2,6 @@
 
 > 实测环境：本地沙箱（2026-10-28 14:25 +08:00）　工具链：**rustc 1.99.0**（rustfmt 1.10.0 / clippy 0.1.99；CI 锁 1.99.1，仅 patch 差）
 > 正面用例 2/2 PASS；反面用例 3/3 均按预期 FAIL，修复后全部 PASS。
-> CI（GitHub Actions）运行后如错误输出有差异，本页将同步回填更新。
 
 ## 正面用例
 
@@ -90,3 +89,5 @@ error: aborting due to 1 previous error
 | case-bad-1 | 格式 | results/fail-case-bad-1.log | rustfmt 自动重排 | PASS |
 | case-bad-2 | 命名（non_camel_case_types / non_snake_case / non_upper_case_globals） | results/fail-case-bad-2.log | 重命名 UserData / compute_value / MAX_SIZE | PASS |
 | case-bad-3 | Lint（clippy::needless_return） | results/fail-case-bad-3.log | 删 return 直接返回 | PASS |
+
+> **CI 实测**：全量运行 40662260620 通过（rustc 1.99.0，与本地一致；CI 实际版本非锁定的 1.99.1）。

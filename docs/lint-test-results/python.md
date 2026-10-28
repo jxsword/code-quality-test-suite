@@ -2,7 +2,6 @@
 
 > 实测环境：本地沙箱（2026-10-28 14:13 +08:00）　工具链：**ruff 0.17.3**
 > 正面用例 2/2 PASS；反面用例 4/4 均按预期 FAIL，修复后全部 PASS。
-> CI（GitHub Actions）运行后如错误输出有差异，本页将同步回填更新。
 
 ## 正面用例
 
@@ -107,3 +106,5 @@ Found 1 error.
 | case-bad-2 | 命名 N801 | results/fail-case-bad-2.log | 重命名 BadClassName | PASS |
 | case-bad-3 | Lint F401 | results/fail-case-bad-3.log | ruff check --fix | PASS |
 | case-bad-4 | Lint B006 | results/fail-case-bad-4.log | None + 体内初始化 | PASS |
+
+> **CI 实测**：全量运行 40662260620 通过（ruff 0.17.3，版本与本地一致）。

@@ -2,7 +2,6 @@
 
 > 实测环境：本地沙箱（2026-10-28 14:23 +08:00）　工具链：**shfmt v3.14.1 + shellcheck 0.11.0**
 > 正面用例 3/3 PASS；反面用例 3/3 均按预期 FAIL，修复后全部 PASS。
-> CI（GitHub Actions）运行后如错误输出有差异，本页将同步回填更新。
 
 ## 正面用例
 
@@ -85,3 +84,5 @@ Did you mean:
 | case-bad-1 | 格式 | results/fail-case-bad-1.log | shfmt -w 自动重排 | PASS |
 | case-bad-2 | Lint SC2086/SC2164 | results/fail-case-bad-2.log | 加引号 + cd 判断返回值 | PASS |
 | case-bad-3 | 命名（正则） | results/fail-case-bad-3.log | snake_case 函数/local、大写 export | PASS |
+
+> **CI 实测**：全量运行 40662260620 通过（shfmt v3.14.1 / shellcheck 0.11.0，版本与本地一致）。

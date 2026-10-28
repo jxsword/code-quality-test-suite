@@ -1,9 +1,8 @@
 # Kotlin 实测结果（lint-test-results）
 
-> 本地与 CI 均已实测（CI 运行后如有差异会回填更新）。
+> **本地与 CI 均已实测**（CI 全量运行 40662260620 全绿，JDK25 + ktlint 1.8.0 + detekt 1.23.8）。
 > 实测环境：本地沙箱（2026-10-28 14:37 +08:00）　工具链：**ktlint 1.8.0 + detekt 1.23.8**（Temurin JDK21）
 > 正面用例 2/2 PASS；反面用例 3/3 均按预期 FAIL，修复后全部 PASS。
-> CI（GitHub Actions）运行后如错误输出有差异，本页将同步回填。
 
 ## 正面用例
 

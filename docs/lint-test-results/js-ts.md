@@ -2,7 +2,6 @@
 
 > 实测环境：本地沙箱（2026-10-28 14:22 +08:00）　工具链：**prettier 3.9.10 / eslint v10.13.0 / typescript-eslint 8.72.1**（npm 实装）
 > 正面用例 2/2 PASS；反面用例 3/3 均按预期 FAIL，修复后全部 PASS。
-> CI（GitHub Actions，`actions/setup-node` + `npm ci`）运行后如错误输出有差异，本页将同步回填更新。
 
 ## 正面用例
 
@@ -53,3 +52,5 @@ Checking formatting...
 | case-bad-1 | 格式 | results/fail-case-bad-1.log | prettier --write 自动重排 | PASS |
 | case-bad-2 | 命名 naming-convention | results/fail-case-bad-2.log | 重命名 IUser | PASS |
 | case-bad-3 | Lint no-explicit-any | results/fail-case-bad-3.log | 泛型 `<T>` 消除 any | PASS |
+
+> **CI 实测**：全量运行 40662260620 通过（prettier 3.9.10 / eslint 10.13.0 / typescript-eslint 8.72.1，版本与本地一致）。
