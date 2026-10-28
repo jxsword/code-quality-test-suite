@@ -1,0 +1,19 @@
+{
+  "name": "code-quality-test-suite-js-ts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "JS/TS 格式化 + Lint 实测套件（Prettier 3.9.10 + ESLint 10.13.0 + typescript-eslint 8.72.1）",
+  "scripts": {
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/"
+  },
+  "devDependencies": {
+    "eslint": "^10.13.0",
+    "prettier": "3.9.10",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.72.1"
+  }
+}
