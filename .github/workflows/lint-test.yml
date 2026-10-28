@@ -47,13 +47,16 @@ jobs:
             sql: 'sql/**'
       - id: resolve
         shell: bash
+        env:
+          LANGS_INPUT: ${{ inputs.langs }}
+          LANGS_FILTERED: ${{ steps.filter.outputs.langs }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.mode }}" = "full" ]; then
-            echo "langs=${{ env.LANGUAGES }}" >> "$GITHUB_OUTPUT"
-          elif [ -n "${{ inputs.langs }}" ]; then
-            echo "langs=${{ inputs.langs }}" >> "$GITHUB_OUTPUT"
+            echo "langs=${LANGUAGES}" >> "$GITHUB_OUTPUT"
+          elif [ -n "${LANGS_INPUT}" ]; then
+            echo "langs=${LANGS_INPUT}" >> "$GITHUB_OUTPUT"
           else
-            echo "langs=${{ steps.filter.outputs.langs }}" >> "$GITHUB_OUTPUT"
+            echo "langs=${LANGS_FILTERED}" >> "$GITHUB_OUTPUT"
           fi
 
   # ② 矩阵实测：只跑 resolve 输出的语言
