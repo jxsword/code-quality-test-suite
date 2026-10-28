@@ -1,0 +1,51 @@
+# cpp/.clang-tidy —— clang-tidy 静态分析 + 命名约束配置（CI 版本 LLVM 23.1.4；本地实测 apt clang-tidy 14）
+# 命名规则全部写在 CheckOptions 的 readability-identifier-naming 下：
+#   函数/方法 = CamelCase；变量/命名空间 = lower_case；类/结构体/枚举 = CamelCase；
+#   常量 = UPPER_CASE；宏 = UPPER_CASE；私有成员前缀 m_。
+# 注意：不使用 HeaderFileExtensions / ImplementationFileExtensions（LLVM 16+ 才认；
+# apt clang-tidy 14 解析失败会导致整份配置被忽略、所有检查静默失效）。
+---
+Checks: >
+  readability-identifier-naming,
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-deprecated-headers,
+  readability-container-size-empty,
+  bugprone-assert-side-effect
+WarningsAsErrors: ''
+CheckOptions:
+  # —— 类型 ——
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypedefCase
+    value: CamelCase
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+  # —— 函数 / 方法 ——
+  - key: readability-identifier-naming.FunctionCase
+    value: CamelCase
+  - key: readability-identifier-naming.MethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.PrivateMemberPrefix
+    value: m_
+  - key: readability-identifier-naming.MemberCase
+    value: CamelCase
+  # —— 变量 ——
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.GlobalVariableCase
+    value: lower_case
+  # —— 常量 ——
+  - key: readability-identifier-naming.ConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ConstexprVariableCase
+    value: UPPER_CASE
+  # —— 宏 ——
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.MacroDefinitionIgnoredRegexp
+    value: '^L$'

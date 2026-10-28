@@ -1,0 +1,9 @@
+# ruff 配置（2026-10-28 调研选型：ruff 0.17.3，format + check 合一）
+# 命名约束：select 含 "N"（pep8-naming 规则族 N801–N818）
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E=pycodestyle 错误  F=pyflakes  I=isort  N=pep8-naming(命名)  UP=pyupgrade  B=bugbear  W=pycodestyle 警告
+select = ["E", "F", "I", "N", "UP", "B", "W"]

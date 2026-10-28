@@ -1,0 +1,11 @@
+# .shellcheckrc —— Shell 静态分析（ShellCheck v0.11.0）项目配置
+# 文档：https://www.shellcheck.net/wiki/Directive
+# 运行方式：cd shell/ && shellcheck src/ （自动读取本目录 .shellcheckrc）
+
+# 团队约定：允许 `local var=$(cmd)` 一行声明+赋值（SC2155）。
+# 说明：该规则本意是“命令替换失败不会触发 set -e”，但本套件脚本多为短小工具，
+#       团队权衡可读性后放宽；重要仍需判断返回值的地方手工处理（见 write_log 的 cd）。
+disable=SC2155
+
+# 关闭对外部来源脚本（--external-source）的递归追踪，保持单文件检查边界。
+external-sources=false

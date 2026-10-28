@@ -1,0 +1,34 @@
+# detekt 1.23.8 配置（code-quality-test-suite / Kotlin）
+# 命名约束：naming 规则集（VariableNaming / FunctionNaming / ClassNaming 等）
+# Lint 规则：style > MagicNumber、style > UnusedPrivateMember
+config:
+  validation: true
+  warningsAsErrors: false
+
+# ===== 命名规则集 =====
+naming:
+  active: true
+  VariableNaming:
+    active: true
+    variablePattern: '[a-z][A-Za-z0-9]*'
+  FunctionNaming:
+    active: true
+    functionPattern: '[a-z][A-Za-z0-9]*'
+  ClassNaming:
+    active: true
+    classPattern: '[A-Z][A-Za-z0-9]*'
+  ConstructorParameterNaming:
+    active: true
+    parameterPattern: '[a-z][A-Za-z0-9]*'
+
+# ===== Lint 规则 =====
+style:
+  active: true
+  MagicNumber:
+    active: true
+    ignoreNumbers: [-1, 0, 1, 2]
+    ignoreHashCodeFunction: true
+    ignoreConstantDeclaration: true
+  UnusedPrivateMember:
+    active: true
+    allowedNames: '(_|ignored|expected|serialVersionUID)'

@@ -1,0 +1,24 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{kt,kts}]
+# ktlint 1.8.0：默认启用全部 standard 规则
+ktlint_standard = enabled
+# 命名相关规则（显式开启）
+ktlint_standard_property-naming = enabled
+ktlint_standard_class-naming = enabled
+ktlint_standard_function-naming = enabled
+# 不强制「一文件一类」（cases 夹具按 bad-*.kt 命名，类名为 Bad*）
+ktlint_standard_filename = disabled
+# ktlint 风格基础规则
+ktlint_standard_indent = enabled
+ktlint_standard_no-wildcard-imports = enabled
+ktlint_standard_no-consecutive-blank-lines = enabled
+ktlint_standard_max-line-length = disabled

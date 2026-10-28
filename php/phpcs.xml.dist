@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<ruleset name="Project">
+    <arg name="basepath" value="."/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="8"/>
+
+    <file>src</file>
+
+    <!-- PSR-12 基础标准 -->
+    <rule ref="PSR12"/>
+
+    <!-- 命名规范（php_codesniffer 4.x：类名移到 Squiz.Classes，常量在 Generic；
+         不启用 Squiz.NamingConventions.ValidVariableName——其强制私有成员下划线前缀，与 PSR12 冲突） -->
+    <rule ref="Squiz.NamingConventions.ValidFunctionName"/>
+    <rule ref="Squiz.Classes.ValidClassName"/>
+    <rule ref="Generic.NamingConventions.CamelCapsFunctionName"/>
+    <rule ref="Generic.NamingConventions.UpperCaseConstantName"/>
+
+    <exclude-pattern>vendor/</exclude-pattern>
+</ruleset>

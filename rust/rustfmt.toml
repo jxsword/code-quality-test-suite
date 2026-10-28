@@ -1,0 +1,8 @@
+# rust/rustfmt.toml —— rustfmt 配置（官方配置项，随 Rust 1.99.x 分发）
+edition = "2024"
+max_width = 100
+hard_tabs = false
+tab_spaces = 4
+newline_style = "Unix"
+reorder_imports = true
+reorder_modules = true
