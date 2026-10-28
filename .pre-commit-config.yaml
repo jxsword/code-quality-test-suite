@@ -1,0 +1,281 @@
+# =============================================================================
+# .pre-commit-config.yaml —— 多语言代码质量工具链统一模板
+# 覆盖 11 类语言：C/C++、Rust、Go、Python、Java、Kotlin、JS/TS、C#/.NET、PHP、Shell、SQL
+# 版本依据：2026-10-28 多语言工具链调研（版本号均为当日查证值）
+#
+# 本仓库特化说明：
+#   - 顶层 exclude 排除各语言 cases/ 目录（故意违规的反面用例夹具，不得被 hook 检查）
+#   - 附带 commit-msg hook（Conventional Commits 校验），由 scripts/setup-hooks.sh 按需启用
+#
+# 快速上手：
+#   pipx install pre-commit        # 或 pip install pre-commit
+#   pre-commit install              # 挂载到 .git/hooks
+#   pre-commit run --all-files      # 首次全量洗礼存量代码
+#   git commit ...                  # 之后只跑暂存文件
+#
+# 裁剪指南：不需要某语言，整段删除对应 repo 即可；
+#           注释掉的行均为可选/需自行验证的方案，按需取消注释。
+# =============================================================================
+
+# cases/ = 反面用例夹具（故意违规），全部排除在 hook 检查之外
+exclude: '(^|/)cases/'
+
+repos:
+  # ---------------------------------------------------------------------------
+  # 0. 通用卫生钩子（语言无关，建议保留）
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0                       # 官方通用 hook 集，已查证
+    hooks:
+      - id: trailing-whitespace       # 行尾空白
+      - id: end-of-file-fixer         # 文件末尾换行
+      - id: check-yaml                # YAML 语法校验
+      - id: check-merge-conflict      # 禁止提交残留的 <<<<<<< 标记
+      - id: mixed-line-ending
+        args: [--fix=lf]              # 统一为 LF（Windows 团队建议保留）
+
+  # ===========================================================================
+  # 1. C/C++  —— clang-format（格式化）+ clang-tidy（静态分析/命名）
+  # 裁剪：不用 C/C++ 就整段删除。
+  # 配套文件：仓库根目录 .clang-format、.clang-tidy（命名规则写在 .clang-tidy）
+  # ===========================================================================
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v23.1.4                      # 跟随 LLVM 23.1.4（2026-10-20 已查证），与 CI 锁一致
+    hooks:
+      - id: clang-format
+        types_or: [c, c++, header]
+        # args: [-i]                  # 默认即原地改写；如需只检查不改文件可换 --dry-run -Werror
+
+  - repo: local
+    hooks:
+      - id: clang-tidy
+        name: clang-tidy (diff 增量；需要 build/compile_commands.json)
+        # 说明：clang-tidy 无官方 pre-commit 镜像（已查证），用 local hook 调本机 clang-tidy-diff.py
+        # 前提：CMake 配置时加 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON，并先完成一次构建
+        entry: bash -c 'git diff --cached -U0 -- "*.cpp" "*.cc" "*.h" "*.hpp" | clang-tidy-diff.py -p1 -path build'
+        pass_filenames: false
+        types_or: [c, c++, header]
+        # 注意：clang-tidy 较慢，如提交卡顿可注释掉本 hook，只在 CI 用 run-clang-tidy 全量跑
+
+  # ===========================================================================
+  # 2. Rust  —— rustfmt（格式化）+ cargo clippy（Lint）
+  # 裁剪：不用 Rust 就整段删除。
+  # 说明：rustfmt/clippy 无官方 pre-commit 镜像（已查证 pre-commit org 无 rustfmt hook），
+  #       用 local hook 直调本机 cargo；需要开发机已装 Rust toolchain（rustfmt+clippy component）。
+  # ===========================================================================
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt --check
+        entry: cargo fmt -- --check
+        language: system
+        files: '\.rs$'
+      - id: cargo-clippy
+        name: cargo clippy (慢；建议移到 pre-push 或 CI)
+        entry: cargo clippy --all-targets -- -D warnings
+        language: system
+        pass_filenames: false
+        files: '\.rs$'
+        # 命名约束由 Cargo.toml 的 [lints.rust]（non_snake_case 等）承担，无需额外工具
+
+  # 可选：社区 rust hook 集合（rustfmt + cargo-check + clippy），tag 需自行验证
+  # - repo: https://github.com/doublify/pre-commit-rust
+  #   rev: v1.0
+  #   hooks:
+  #     - id: fmt
+  #     - id: cargo-check
+
+  # ===========================================================================
+  # 3. Go  —— gofmt（格式化）+ golangci-lint（Lint 聚合）
+  # 裁剪：不用 Go 就整段删除。
+  # 说明：gofmt 无必要打镜像（本机自带），golangci-lint 官方仓库自带 pre-commit hook。
+  # ===========================================================================
+  - repo: local
+    hooks:
+      - id: gofmt
+        name: gofmt -w
+        entry: gofmt -w
+        language: system
+        files: '\.go$'
+
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v2.15.0                      # golangci-lint v2.15.0（2026-10-16 已查证）
+    hooks:
+      - id: golangci-lint              # 官方仓库自带 hook（已查证）
+        # args: [--new-from-rev=HEAD]  # 大仓库可只查相对上次提交的增量
+
+  # ===========================================================================
+  # 4. Python  —— ruff（Lint + 命名 N 规则族）+ ruff-format（格式化）
+  # 裁剪：不用 Python 就整段删除。
+  # 配置入口：pyproject.toml [tool.ruff]（select 中加 "N" 即 pep8-naming 命名约束）
+  # ===========================================================================
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.3                      # ruff 0.17.3（2026-10-27 已查证）
+    hooks:
+      - id: ruff                      # ruff check --fix（含 flake8/isort/pep8-naming 等）
+        args: [--fix]
+      - id: ruff-format               # ruff format（Black 兼容风格）
+
+  # ===========================================================================
+  # 5. Java  —— google-java-format（Spotless）+ Checkstyle
+  # 裁剪：不用 Java 就整段删除。
+  # 说明：两者均无官方 pre-commit 镜像（已查证），用 local hook 调 Maven Wrapper；
+  #       命名约束写在 checkstyle.xml 的 TreeWalker 命名模块组。
+  # 注意：JVM 冷启动较慢，可注释掉本段落、只在 CI 跑 mvn verify。
+  # ===========================================================================
+  - repo: local
+    hooks:
+      - id: google-java-format
+        name: google-java-format (mvn spotless:apply)
+        entry: mvn -q spotless:apply
+        pass_filenames: false
+        files: '\.java$'
+      - id: checkstyle
+        name: checkstyle (mvn checkstyle:check)
+        entry: mvn -q checkstyle:check
+        pass_filenames: false
+        files: '\.java$'
+
+  # ===========================================================================
+  # 6. Kotlin  —— ktlint（格式化）+ detekt（静态分析/命名）
+  # 裁剪：不用 Kotlin 就整段删除。
+  # ===========================================================================
+  - repo: https://github.com/pre-commit/mirrors-ktlint
+    rev: v1.8.0                       # 跟随 pinterest/ktlint 1.8.0（2026-08-21 已查证）
+                                      # 注意：mirror 的 tag 需自行验证（与上游 release 对齐）
+    hooks:
+      - id: ktlint
+        args: [--format]              # 自动修复风格问题；只检查可去掉 --format
+
+  - repo: local
+    hooks:
+      - id: detekt
+        name: detekt (Gradle；首次建议先 detektBaseline 生成基线)
+        entry: ./gradlew detekt
+        pass_filenames: false
+        files: '\.kt$|\.kts$'
+        # detekt 较慢，可注释掉本 hook 只在 CI 跑；命名规则写在 detekt-config.yml
+
+  # ===========================================================================
+  # 7. JS/TS  —— Prettier（格式化）+ ESLint（Lint，flat config）
+  # 裁剪：不用 JS/TS 就整段删除。
+  # 说明：flat config（eslint.config.js）时代，pre-commit 镜像无法替你解析项目依赖，
+  #       ESLint 用 local hook 跑 npx eslint（项目 devDependencies 里装好 eslint）。
+  # ===========================================================================
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.9.10                      # 跟随 prettier 3.9.10（2026-10-10 已查证）
+                                      # 注意：若该镜像停更，改用社区镜像 rbubley/mirrors-prettier（需自行验证）
+    hooks:
+      - id: prettier
+        # 说明：不检查 markdown（docs/ 的排版以人工维护为准，避免 prettier 改写文档）
+        types_or: [javascript, ts, json, css, yaml]
+
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint (flat config, npx)
+        entry: npx eslint --fix
+        language: system
+        files: '\.(js|jsx|ts|tsx|vue)$'
+        # 前提：npm install 已装好 eslint / typescript-eslint；命名由
+        #       eslint.config.js 中 @typescript-eslint/naming-convention 承担
+
+  # ===========================================================================
+  # 8. C#/.NET  —— dotnet format（随 .NET SDK 分发）
+  # 裁剪：不用 C# 就整段删除。
+  # 说明：无 pre-commit 镜像（已查证）；命名约束写在 .editorconfig 的
+  #       dotnet_naming_rule_* 体系；需要开发机装有 .NET SDK。
+  # ===========================================================================
+  - repo: local
+    hooks:
+      - id: dotnet-format
+        name: dotnet format whitespace (需 .NET SDK)
+        entry: bash -c 'files=$(git diff --cached --name-only -- "*.cs"); [ -z "$files" ] || dotnet format whitespace --include $files'
+        pass_filenames: false
+        files: '\.cs$'
+
+  # ===========================================================================
+  # 9. PHP  —— PHP-CS-Fixer（格式化）+ phpcs（PSR-12 + 命名 sniff）
+  # 裁剪：不用 PHP 就整段删除。
+  # 说明：工具经 composer 装进本地 vendor/bin，local hook 直调（已查证的执行路径）；
+  #       命名约束由 phpcs.xml.dist 的 Squiz.NamingConventions 系列 sniff 承担。
+  # ===========================================================================
+  - repo: local
+    hooks:
+      - id: php-cs-fixer
+        name: php-cs-fixer
+        entry: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php
+        language: system
+        files: '\.php$'
+      - id: phpcs
+        name: phpcs (PSR-12 + 命名)
+        entry: vendor/bin/phpcs --standard=phpcs.xml.dist
+        language: system
+        files: '\.php$'
+
+  # 可选：PHP 官方 pre-commit 镜像（需自行验证 tag 是否跟版）
+  # - repo: https://github.com/pre-commit/mirrors-php-cs-fixer
+  #   rev: v3.95.27
+  #   hooks:
+  #     - id: php-cs-fixer
+  # - repo: https://github.com/pre-commit/mirrors-phpcs
+  #   rev: v4.0.4
+  #   hooks:
+  #     - id: phpcs
+
+  # ===========================================================================
+  # 10. Shell  —— shfmt（格式化）+ ShellCheck（Lint）+ 自定义命名正则
+  # 裁剪：不用 Shell 就整段删除。
+  # 说明：Shell 生态无专用命名工具，命名走 scripts/shell-naming-check.sh（自定义正则）。
+  # ===========================================================================
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.14.1                      # shfmt v3.14.1（2026-09-06 已查证），社区最广泛使用的镜像
+    hooks:
+      - id: shfmt
+        args: [-i, "4", -ci, -sr, -s]   # 缩进4空格 / case分支缩进 / 重定向留空格 / 自动简化
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1                    # shellcheck 0.11.0 的 PyPI wheel 打包（已查证仓库可访问）
+    hooks:
+      - id: shellcheck
+
+  - repo: local
+    hooks:
+      - id: shell-naming
+        name: shell naming conventions (custom regex)
+        entry: scripts/shell-naming-check.sh
+        language: script
+        types: [shell]
+
+  # ===========================================================================
+  # 11. SQL  —— SQLFluff（格式化 + Lint + 标识符大小写命名）
+  # 裁剪：不用 SQL 就整段删除。
+  # 说明：sqlfluff 官方仓库自带 .pre-commit-hooks.yaml（hook id：sqlfluff-lint /
+  #       sqlfluff-fix），官方文档推荐直接引用官方仓库；方言在 .sqlfluff 配置。
+  # ===========================================================================
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 4.4.0                        # sqlfluff 最新稳定 tag 无 v 前缀（2026-10-02 已查证）
+    hooks:
+      - id: sqlfluff-lint
+        args: [--dialect, postgres]   # 按团队方言改：mysql / bigquery / snowflake ...
+      # - id: sqlfluff-fix            # 需要提交时自动修复格式可取消注释
+
+  # 备选：社区镜像（官方仓库不可用时使用，需自行验证 tag）
+  # - repo: https://github.com/dmateusp/pre-commit-mirror-sqlfluff
+  #   rev: 4.4.0
+  #   hooks:
+  #     - id: sqlfluff-lint
+  #       args: [--dialect, postgres]
+
+  # ===========================================================================
+  # 12. commit-msg —— Conventional Commits 提交信息校验（可选启用）
+  # 启用方式：bash scripts/setup-hooks.sh 选择 commit-msg，或手动
+  #           pre-commit install --hook-type commit-msg
+  # ===========================================================================
+  - repo: local
+    hooks:
+      - id: commit-msg-check
+        name: conventional commits (commit-msg)
+        entry: bash scripts/commit-msg-check.sh
+        language: system
+        stages: [commit-msg]

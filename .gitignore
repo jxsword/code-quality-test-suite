@@ -1,0 +1,28 @@
+# ===== 运行产物（每语言 run-tests.sh 输出，CI 上传为 artifact）=====
+results/
+
+# ===== 语言构建与依赖 =====
+rust/target/
+**/target/
+**/bin/
+**/obj/
+go/bin/
+node_modules/
+dist/
+build/
+out/
+*.class
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.gradle/
+.kotlin/
+.mvn/
+vendor/
+
+# ===== IDE / OS =====
+.idea/
+.vscode/
+*.iml
+.DS_Store

@@ -1,0 +1,145 @@
+name: code-quality-lint-test
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['docs/**', '**.md']      # 文档改动不触发
+  pull_request:
+    paths-ignore: ['docs/**', '**.md']
+  workflow_dispatch:                         # 手动：全量 or 指定语言
+    inputs:
+      mode:
+        description: 'incremental=只跑改动目录 / full=11 个全跑'
+        type: choice
+        default: incremental
+        options: [incremental, full]
+      langs:
+        description: '手动指定语言，逗号分隔（如 python,cpp）；留空按 mode'
+        type: string
+        default: ''
+
+env:
+  LANGUAGES: '["cpp","rust","go","python","java","kotlin","js-ts","dotnet","php","shell","sql"]'
+
+jobs:
+  # ① 变更检测：git diff 判定改动了哪些语言目录
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      langs: ${{ steps.resolve.outputs.langs }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            cpp: 'cpp/**'
+            rust: 'rust/**'
+            go: 'go/**'
+            python: 'python/**'
+            java: 'java/**'
+            kotlin: 'kotlin/**'
+            js-ts: 'js-ts/**'
+            dotnet: 'dotnet/**'
+            php: 'php/**'
+            shell: 'shell/**'
+            sql: 'sql/**'
+      - id: resolve
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.mode }}" = "full" ]; then
+            echo "langs=${{ env.LANGUAGES }}" >> "$GITHUB_OUTPUT"
+          elif [ -n "${{ inputs.langs }}" ]; then
+            echo "langs=${{ inputs.langs }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "langs=${{ steps.filter.outputs.langs }}" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ② 矩阵实测：只跑 resolve 输出的语言
+  lint-test:
+    needs: changes
+    if: ${{ needs.changes.outputs.langs != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: ${{ fromJSON(needs.changes.outputs.langs) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # ===== 缓存段：只缓存「包管理器依赖」，工具链二进制走 setup/CDN =====
+      - name: 缓存 Rust 依赖
+        if: matrix.lang == 'rust'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust/target
+          key: rust-${{ hashFiles('rust/Cargo.lock') }}
+          restore-keys: rust-
+      - name: 缓存 Gradle 依赖（Kotlin）
+        if: matrix.lang == 'kotlin'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('kotlin/**/*.gradle.kts', 'kotlin/gradle/libs.versions.toml') }}
+          restore-keys: gradle-
+      - name: 缓存 Maven 依赖（Java）
+        if: matrix.lang == 'java'
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('java/pom.xml') }}
+          restore-keys: maven-
+      - name: 缓存 NuGet 依赖（C#）
+        if: matrix.lang == 'dotnet'
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ hashFiles('dotnet/**/*.csproj') }}
+          restore-keys: nuget-
+      - name: 缓存 npm 依赖（JS/TS）
+        if: matrix.lang == 'js-ts'
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('js-ts/package-lock.json') }}
+          restore-keys: npm-
+      - name: 缓存 composer 依赖（PHP）
+        if: matrix.lang == 'php'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ hashFiles('php/composer.lock') }}
+          restore-keys: composer-
+      - name: 缓存 Go 模块
+        if: matrix.lang == 'go'
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: go-${{ hashFiles('go/go.sum') }}
+          restore-keys: go-
+      - name: 缓存 pip 依赖（Python / SQL）
+        if: matrix.lang == 'python' || matrix.lang == 'sql'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('python/pyproject.toml', 'sql/requirements.txt') }}
+          restore-keys: pip-
+
+      # ===== 执行：每语言 run-tests.sh 负责安装 + 正/反用例 + 记录 =====
+      - name: 安装工具链并运行正/反用例
+        run: cd ${{ matrix.lang }} && bash run-tests.sh
+
+      # ===== 产物：错误信息日志上传，供汇总文档引用 =====
+      - name: 上传测试结果
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ matrix.lang }}
+          path: ${{ matrix.lang }}/results/
+          if-no-files-found: warn
