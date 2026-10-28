@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+  "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+  "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+  Checkstyle 14.3.0 配置（code-quality-test-suite / Java）。
+  命名约束集中在 TreeWalker 命名模块组（ConstantName / MemberName / MethodName /
+  TypeName / AbbreviationAsWordInName），另挂 Lint 规则 UnusedImports。
+  风格（缩进/换行/import 顺序）由 google-java-format（Spotless）承担，此处不重复。
+-->
+<module name="Checker">
+  <!-- 全局：仅 UTF-8，行宽 100 与 google-java-format 对齐 -->
+  <property name="charset" value="UTF-8"/>
+  <property name="fileExtensions" value="java"/>
+
+  <module name="TreeWalker">
+    <!-- ===== 命名模块组（命名约束核心）===== -->
+    <module name="PackageName">
+      <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+    </module>
+    <module name="TypeName">
+      <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
+    </module>
+    <module name="MemberName">
+      <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+    </module>
+    <module name="ConstantName">
+      <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$"/>
+    </module>
+    <module name="MethodName">
+      <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+    </module>
+    <module name="ParameterName">
+      <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+    </module>
+    <module name="LocalVariableName">
+      <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+    </module>
+    <!-- 禁止连续大写缩写：如 HTTPURL 应写作 HttpUrl（常量忽略 final） -->
+    <module name="AbbreviationAsWordInName">
+      <property name="ignoreFinal" value="true"/>
+      <property name="allowedAbbreviationLength" value="2"/>
+    </module>
+
+    <!-- ===== Lint 规则 ===== -->
+    <module name="UnusedImports"/>
+    <module name="RedundantImport"/>
+    <module name="MissingOverride"/>
+  </module>
+</module>
