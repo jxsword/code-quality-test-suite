@@ -1,0 +1,26 @@
+# .sqlfluff —— SQLFluff 4.4.0 项目配置（方言：PostgreSQL）
+# 文档：https://docs.sqlfluff.com  运行方式：cd sql/ && sqlfluff lint src/
+# 说明：4.4.0 中大小写规则已重组为命名空间规则（别名仍为 L010/L014/L030）：
+#   CP01 [capitalisation.keywords]      ← 旧 L010，配置键 capitalisation_policy
+#   CP02 [capitalisation.identifiers]  ← 旧 L014，配置键 extended_capitalisation_policy
+#   CP03 [capitalisation.functions]    ← 旧 L030，配置键 extended_capitalisation_policy
+[sqlfluff]
+dialect = postgres
+templater = raw
+max_line_length = 120
+
+[sqlfluff:rules]
+# 允许 SELECT 后单行标量表达式；列别名要求显式 AS（AL01）
+allow_scalar = true
+
+# CP01（旧 L010）：关键字一律全大写
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+# CP02（旧 L014）：无引号标识符一律小写，即强制 snake_case 命名
+[sqlfluff:rules:capitalisation.identifiers]
+extended_capitalisation_policy = lower
+
+# CP03（旧 L030）：函数名一律全大写
+[sqlfluff:rules:capitalisation.functions]
+extended_capitalisation_policy = upper
